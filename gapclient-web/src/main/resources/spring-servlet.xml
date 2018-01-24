@@ -1,0 +1,151 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:task="http://www.springframework.org/schema/task"
+
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+           http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd
+           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<bean id="handlerAdapter"
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+		<property name="messageConverters">
+			<util:list>
+				<ref bean="byteArrayHttpMessageConverter" />
+				<ref bean="mappingJacksonHttpMessageConverter" />
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="byteArrayHttpMessageConverter"
+		class="org.springframework.http.converter.ByteArrayHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<util:list>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="application" />
+					<constructor-arg index="1" value="csv" />
+					<constructor-arg index="2">
+						<util:map id="csvMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9999"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="text" />
+					<constructor-arg index="1" value="html" />
+					<constructor-arg index="2">
+						<util:map id="textHtmlMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9991"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+	<bean id="mappingJacksonHttpMessageConverter"
+		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter">
+		<property name="supportedMediaTypes">
+			<util:list>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="text" />
+					<constructor-arg index="1" value="plain" />
+					<constructor-arg index="2">
+						<util:map id="textPlainMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9997"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="*" />
+					<constructor-arg index="1" value="*" />
+					<constructor-arg index="2">
+						<util:map id="allMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9995"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="text" />
+					<constructor-arg index="1" value="*" />
+					<constructor-arg index="2">
+						<util:map id="textMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9996"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+				<bean class="org.springframework.http.MediaType">
+					<constructor-arg index="0" value="application" />
+					<constructor-arg index="1" value="json" />
+					<constructor-arg index="2">
+						<util:map id="jsonMediaTypeParams" map-class="java.util.HashMap">
+							<entry key="q" value="0.9999"></entry>
+							<entry key="charset" value="UTF-8"></entry>
+						</util:map>
+					</constructor-arg>
+				</bean>
+			</util:list>
+		</property>
+	</bean>
+
+
+	<!-- annotation默认的方法映射适配器 -->
+	<bean id="handlerMapping"
+		class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping" />
+
+
+	<bean id="jsonView"
+		class="org.springframework.web.servlet.view.json.MappingJacksonJsonView">
+		<property name="contentType" value="application/json;charset=UTF-8" />
+		<property name="disableCaching" value="true" />
+	</bean>
+
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="uploadTempDir" value="temp"></property>
+		<property name="maxInMemorySize" value="524288000" />
+		<!-- 最大内存大小 -->
+		<property name="maxUploadSize" value="524288000" />
+		<!-- 最大文件大小，1024*1024*500 = 500M -->
+	</bean>
+
+	<mvc:resources mapping="/skin/**" location="/skin/"
+		cache-period="259200" />
+
+	<mvc:resources mapping="/static/**" location="/static/"
+		cache-period="259200" />
+
+	<beans:bean id="freemarkerConfig"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+		<beans:property name="templateLoaderPath" value="/page/" />
+		<beans:property name="freemarkerSettings">
+			<props>
+				<prop key="defaultEncoding">UTF-8</prop>
+				<prop key="datetime_format">yyyy-MM-dd HH:mm:ss</prop>
+				<prop key="template_exception_handler">ignore</prop>
+			</props>
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean id="viewResolver"
+		class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+		<beans:property name="cache" value="false" />
+		<beans:property name="prefix" value="" />
+		<beans:property name="suffix" value=".ftl" />
+		<beans:property name="contentType" value="text/html;charset=UTF-8" />
+		<property name="order" value="1"/> 
+	</beans:bean>
+	
+	
+	
+	
+</beans>

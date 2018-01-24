@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop-3.0.xsd   
+        http://www.springframework.org/schema/beans   
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context   
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd
+        http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-3.0.xsd">
+
+    <description>Spring配置</description>
+    <context:annotation-config/> 
+
+    <bean id="propertyConfigurerForBiz"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="order" value="1"/>
+        <property name="systemPropertiesModeName" value="SYSTEM_PROPERTIES_MODE_OVERRIDE"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="locations">
+            <list>
+                <value>classpath*:/biz-config.properties</value>
+                <value>classpath*:/wrapper-config.properties</value>
+                <value>classpath*:/jdbc-config.properties</value>
+                <value>file:/app/gapclient/conf/*.properties</value>
+            </list>
+        </property>
+    </bean>
+    
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">    
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>    
+    </bean>
+    
+    <import resource="classpath:dalContext.xml"/>
+    <import resource="classpath:spring-mybatis.xml"/>
+    
+    <context:component-scan base-package="com.ethan.gapclient.biz"/>
+    
+    <context:component-scan base-package="com.ethan.gapclient.biz.service.impl">
+	     <context:include-filter type="regex" expression=".*Impl"/>
+	</context:component-scan>
+	
+	<context:component-scan base-package="com.ethan.gapclient.biz.service.*.impl">
+	     <context:include-filter type="regex" expression=".*Impl"/>
+	</context:component-scan>
+
+	<context:component-scan base-package="com.ethan.gapclient.api.service.impl">
+	     <context:include-filter type="regex" expression=".*Impl"/>
+	</context:component-scan>
+	
+	<import resource="classpath:wrapperContext.xml"/>
+	<import resource="classpath:wrapper-ws.xml"/>
+</beans>
